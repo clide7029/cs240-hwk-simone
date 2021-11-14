@@ -1,32 +1,34 @@
 <!DOCTYPE html>
 <html>
-  <head>
+
+<head>
     <title>Simone the Memory Game</title>
     <link rel="stylesheet" href="simone.css" />
-  </head>
+</head>
 
-  <body>
+<body>
     <section>
-      <h1>Simone the Memory Game</h1>
-      <p>
-        Instructions: The objective of this game is for the player to memorize
-        and replicate the color sequence that is shown. The color sequence gets
-        longer after the player successfully completes a round. Good luck!
+        <h1>Simone the Memory Game</h1>
+        <p>
+            Instructions: The objective of this game is for the player to memorize and replicate the color sequence that is shown. The color sequence gets longer after the player successfully completes a round. Good luck!
+            <br /><br />
+        </p>
+        <p>
+            <input type="text" id="rounds" placeholder="Rounds (Ex: 10)" />
+            <button id="play" onclick=gameLoop();>Play Simone!</button>
+        </p>
+        <p id="status"></p>
         <br /><br />
-      </p>
-      <p>
-        <input type="text" id="rounds" placeholder="Rounds (Ex: 10)" />
-        <button id="play">Play Simone!</button>
-      </p>
-      <p id="status"></p>
-      <br /><br />
-      <div class="red" id="redSq"></div>
-      <div class="blue" id="blueSq"></div>
-      <br />
-      <div class="green" id="greenSq"></div>
-      <div class="yellow" id="yellowSq"></div>
+        <div class="red" id="redSq"></div>
+        <div class="blue" id="blueSq"></div>
+        <br />
+        <div class="green" id="greenSq"></div>
+        <div class="yellow" id="yellowSq"></div>
     </section>
 
-    <!-- TODO: include your own .js files here -->
-  </body>
+    <script>
+        src = "app.js"
+    </script>
+</body>
+
 </html>
