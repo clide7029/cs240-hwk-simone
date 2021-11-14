@@ -26,32 +26,44 @@ class Button {
 const list = ['R', 'G', "B", "Y", 'R', 'G', "B", "Y", 'R', 'G', "B", "Y"];
 
 class Game {
-    constructor(sequence) {
-        this.sub = [];
-        this.sequence = [];
-        this.completed = 1;
-        this.checked = 0;
+    constructor() {
         this.red = new Button('red');
         this.blue = new Button('blue');
         this.green = new Button('green');
         this.yellow = new Button('yellow');
         this.status = document.getElementById("status");
         this.body = document.querySelector("body");
+        this.sequence = [];
+        this.completed = 1;
+        this.sub = [];
+        this.checked = 0;
     }
 
-    start(rounds) {
+    async start(rounds) {
         //get list from API
         this.sequence = list.slice(0, rounds);
         this.addButtonListeners();
+
+        parseColorSequence(list, T_GREET);
+        await pause(T_START);
         this.playRound(1);
     }
 
     playRound(round) {
         for (let i = 0; i <= round; i++) {
-            this.sub = this.sequence.slice(0, round);
+            this.sub = this.sequence.slice(0, i);
             console.log(this.sub);
-            parseColorSequence(this.sub, SHORT);
+            parseColorSequence(this.sub, T_BUTTON);
         }
+    }
+
+    async nextRound(round) {
+        this.status.innerHTML = "Good job! Prepare for next round.";
+        playSound('nextRound');
+        await pause(T_ROUND);
+        this.status.innerHTML = `Round ${round} of ${this.sequence.length}`;
+        await pause(T_ROUND);
+        this.playRound(round)
     }
 
     checkInput(alias) {
@@ -60,15 +72,20 @@ class Game {
             return false;
         }
         this.checked++;
+        this.status.innerHTML = `So far so good! ${this.sub.length - this.checked} more to go!`;
+
+        if (this.checked == this.sequence.length) {
+            this.win();
+            return false;
+        }
+
         if (this.checked == this.sub.length) {
             this.completed++;
             this.checked = 0;
-            this.playRound(this.completed);
-            return true;
+            this.nextRound(this.completed);
         }
-        if (this.checked == this.sequence.length) {
-            this.win();
-        }
+        return true;
+
     }
 
     lose() {
@@ -79,7 +96,7 @@ class Game {
 
     win() {
         playSound('win');
-        this.body.style.background = 'lightblue';
+        this.body.style.background = 'deepskyblue';
         this.status.innerHTML = "Congratulations! You Win!";
     }
 
@@ -92,9 +109,10 @@ class Game {
 }
 
 var game = new Game();
-const SHORT = 120;
-const MID = 400;
-const LONG = 4000;
+const T_GREET = 120;
+const T_START = 4000;
+const T_BUTTON = 400;
+const T_ROUND = 800;
 
 play = document.getElementById("play");
 play.addEventListener("click", function() {
@@ -109,15 +127,18 @@ function addListeners(node) {
     });
     node.element.addEventListener("mouseout", function() {
         node.removeBorder();
+        if (node.element.classList.contains(`light${node.color}`)) {
+            node.dim();
+        }
     });
-    node.element.addEventListener("mousedown", async function() {
+    node.element.addEventListener("mousedown", function() {
         node.light();
-        node.sound();
-        game.checkInput(node.alias)
-        await pause(SHORT);
     });
-    node.element.addEventListener("mouseup", function() {
+    node.element.addEventListener("mouseup", async function() {
         node.dim();
+        node.sound();
+        game.checkInput(node.alias);
+        await pause(T_GREET);
     });
 }
 
@@ -157,6 +178,7 @@ async function parseColorSequence(sequence, wait) {
 }
 
 function playSound(effect) {
+
     switch (effect) {
         case 'lose':
             var sound = new Audio(`./sounds/${effect}.wav`);
