@@ -33,15 +33,15 @@ class Game {
         this.yellow = new Button('yellow');
         this.status = document.getElementById("status");
         this.body = document.querySelector("body");
-        this.sequence = [];
-        this.completed = 1;
-        this.sub = [];
-        this.checked = 0;
+
     }
 
     async start(rounds) {
         //get list from API
         this.sequence = list.slice(0, rounds);
+        this.completed = 1;
+        this.sub = [];
+        this.checked = 0;
         this.addButtonListeners();
 
         parseColorSequence(list, T_GREET);
@@ -52,7 +52,6 @@ class Game {
     playRound(round) {
         for (let i = 0; i <= round; i++) {
             this.sub = this.sequence.slice(0, i);
-            console.log(this.sub);
             parseColorSequence(this.sub, T_BUTTON);
         }
     }
@@ -138,7 +137,7 @@ function addListeners(node) {
         node.dim();
         node.sound();
         game.checkInput(node.alias);
-        await pause(T_GREET);
+        await pause(T_BUTTON);
     });
 }
 
@@ -150,7 +149,6 @@ async function parseColorSequence(sequence, wait) {
         switch (sequence[i]) {
             case 'R':
                 game.red.light();
-                game.red.drawBorder();
                 game.red.sound();
                 await pause(wait);
                 game.red.dim();
@@ -180,19 +178,11 @@ async function parseColorSequence(sequence, wait) {
 function playSound(effect) {
 
     switch (effect) {
-        case 'lose':
-            var sound = new Audio(`./sounds/${effect}.wav`);
-            sound.play();
-            break;
         case 'win':
             var sound = new Audio(`./sounds/${effect}.mp3`);
             sound.play();
             break;
-        case 'wrong':
-            var sound = new Audio(`./sounds/${effect}.wav`);
-            sound.play();
-            break;
-        case 'nextRound':
+        default:
             var sound = new Audio(`./sounds/${effect}.wav`);
             sound.play();
             break;
