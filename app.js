@@ -1,3 +1,5 @@
+const axios = require("./node_modules/axios");
+
 class Button {
     constructor(color) {
         this.color = color;
@@ -33,25 +35,46 @@ class Game {
         this.yellow = new Button('yellow');
         this.status = document.getElementById("status");
         this.body = document.querySelector("body");
+        this.url = 'http://cs.pugetsound.edu/~dchiu/cs240/api/simone/';
+    }
 
+    async getSequence(rounds) {
+        // let HEAD = {
+        //     headers: {
+        //         httpHeader: 'v',
+        //     },
+        // };
+        try {
+            let startResponse = await axios.get(this.url + "?cmd=start");
+            let roundResponse = await axios.get(this.url + `?cmd=getSolution&rounds=${rounds}`);
+            this.startSequence = startResponse.data.sequence;
+            this.roundSequence = roundResponse.data.key;
+            console.dir(this.roundSequence);
+            console.dir(this.startSequence);
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     async start(rounds) {
         //get list from API
-        this.sequence = list.slice(0, rounds);
+        // this.sequence = list.slice(0, rounds);
+        await this.getSequence(rounds);
         this.completed = 1;
         this.sub = [];
         this.checked = 0;
         this.addButtonListeners();
 
-        parseColorSequence(list, T_GREET);
+        console.dir(this.startSequence);
+        parseColorSequence(this.startSequence, T_GREET);
         await pause(T_START);
         this.playRound(1);
     }
 
     playRound(round) {
         for (let i = 0; i <= round; i++) {
-            this.sub = this.sequence.slice(0, i);
+            this.sub = this.roundSequence.slice(0, i);
+            console.dir(this.sub);
             parseColorSequence(this.sub, T_BUTTON);
         }
     }
@@ -60,20 +83,20 @@ class Game {
         this.status.innerHTML = "Good job! Prepare for next round.";
         playSound('nextRound');
         await pause(T_ROUND);
-        this.status.innerHTML = `Round ${round} of ${this.sequence.length}`;
+        this.status.innerHTML = `Round ${round} of ${this.roundSequence.length}`;
         await pause(T_ROUND);
         this.playRound(round)
     }
 
     checkInput(alias) {
-        if (this.sequence[this.checked] != alias) {
+        if (this.roundSequence[this.checked] != alias) {
             this.lose();
             return false;
         }
         this.checked++;
         this.status.innerHTML = `So far so good! ${this.sub.length - this.checked} more to go!`;
 
-        if (this.checked == this.sequence.length) {
+        if (this.checked == this.roundSequence.length) {
             this.win();
             return false;
         }
